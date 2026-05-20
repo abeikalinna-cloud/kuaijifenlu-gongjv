@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会计业务翻译器</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">会</span>
+        <div>
+          <p>Accounting Workbench</p>
+          <h1>会计业务翻译器</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="ghost-btn" id="resetBtn">重置输入</button>
+        <button type="button" class="ghost-btn" id="exportBtn">导出记录</button>
+      </div>
+    </header>
+
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">业务处理辅助工具</p>
+        <h2>把现实业务转成凭证、分录和报表列示。</h2>
+        <p>适合会计助理日常复核、整理常见业务处理思路，也适合作为面试作品展示。</p>
+      </div>
+      <div class="quick-metrics">
+        <button type="button" data-jump-section="voucher">
+          <strong>17</strong>
+          <span>类常见业务</span>
+        </button>
+        <button type="button" data-jump-section="entry" data-scroll-target="workflowSteps">
+          <strong>4</strong>
+          <span>步处理链路</span>
+        </button>
+        <button type="button" data-jump-section="records">
+          <strong id="recordCount">0</strong>
+          <span>条处理记录</span>
+        </button>
+      </div>
+    </section>
+
+    <nav class="module-tabs" aria-label="功能导航">
+      <button class="nav-btn active" type="button" data-section="entry">业务转分录</button>
+      <button class="nav-btn" type="button" data-section="voucher">凭证清单</button>
+      <button class="nav-btn" type="button" data-section="report">报表列示</button>
+      <button class="nav-btn" type="button" data-section="accounts">科目速查</button>
+      <button class="nav-btn" type="button" data-section="records">处理记录</button>
+      <button class="nav-btn" type="button" data-section="case">完整案例</button>
+    </nav>
+
+    <main class="content">
+      <section id="entry" class="section active-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Entry Generator</p>
+            <h2>业务转分录</h2>
+            <p>选择业务、录入金额，系统生成凭证清单、借贷分录、逻辑说明和财务报表列示。</p>
+          </div>
+          <span class="save-badge" id="saveStatus">本地自动保存</span>
+        </div>
+
+        <div id="workflowSteps" class="workflow-strip">
+          <div><span>01</span><strong>识别业务</strong><p>判断交易实质</p></div>
+          <div><span>02</span><strong>核对凭证</strong><p>确认支撑资料</p></div>
+          <div><span>03</span><strong>形成分录</strong><p>借贷与金额匹配</p></div>
+          <div><span>04</span><strong>报表列示</strong><p>定位三张报表影响</p></div>
+        </div>
+
+        <div class="workbench-grid">
+          <form class="input-panel" id="entryForm">
+            <div class="panel-title">
+              <h3>业务输入</h3>
+              <p>先选业务，再填金额。</p>
+            </div>
+
+            <label>
+              <span>业务类型</span>
+              <select id="businessType">
+                <option value="invest">股东投入资金</option>
+                <option value="bankLoan">银行借款到账</option>
+                <option value="buyPaid">购买商品，已付款</option>
+                <option value="buyUnpaid">购买商品，未付款</option>
+                <option value="sellCash">销售商品，已收款</option>
+                <option value="sellCredit">销售商品，未收款</option>
+                <option value="receiveDebt">收到客户前欠货款</option>
+                <option value="paySupplier">支付供应商欠款</option>
+                <option value="accrueSalary">计提工资</option>
+                <option value="paySalary">发放工资</option>
+                <option value="payAd">支付广告费</option>
+                <option value="buyAsset">购买固定资产</option>
+                <option value="buyAssetUnpaid">购买固定资产，未付款</option>
+                <option value="depreciation">计提折旧</option>
+                <option value="accrueIncomeTax">计提所得税</option>
+                <option value="advanceFromCustomer">预收客户款</option>
+                <option value="prepaySupplier">预付供应商款</option>
+              </select>
+            </label>
+
+            <label id="expenseField">
+              <span>费用归属科目</span>
+              <select id="expenseAccount">
+                <option value="管理费用">管理费用</option>
+                <option value="销售费用">销售费用</option>
+                <option value="制造费用">制造费用</option>
+              </select>
+              <small>工资、折旧等费用实际应按部门或资产用途归集。</small>
+            </label>
+
+            <label>
+              <span>金额</span>
+              <input id="amount" type="number" min="0" step="0.01" placeholder="例如 12000">
+            </label>
+
+            <label id="costField">
+              <span>商品成本</span>
+              <input id="cost" type="number" min="0" step="0.01" placeholder="销售业务可填写">
+              <small>销售库存商品通常还需要结转成本；不填成本时利润影响可能不完整。</small>
+            </label>
+
+            <div class="button-stack">
+              <button id="generateBtn" class="primary-btn" type="submit">生成会计处理</button>
+              <button id="saveRecordBtn" class="secondary-btn" type="button">保存到处理记录</button>
+              <button id="copyEntryBtn" class="ghost-btn" type="button">复制分录</button>
+            </div>
+          </form>
+
+          <section class="output-panel" aria-label="会计处理结果">
+            <div class="result-header">
+              <div>
+                <p class="eyebrow">Generated Result</p>
+                <h3 id="resultTitle">等待生成</h3>
+                <p id="resultSummary">默认示例：销售商品 10,000 元，成本 6,000 元，客户未付款。</p>
+              </div>
+              <span id="resultAmount">--</span>
+            </div>
+            <div id="scopeNote" class="scope-note">当前为基础工作辅助版，默认不考虑增值税；实际业务需结合发票税率、纳税人类型和公司会计政策处理。</div>
+
+            <div class="ledger-box">
+              <div class="ledger-title">会计分录</div>
+              <div id="entryResult" class="entry-result empty-state">输入金额后点击生成。</div>
+            </div>
+
+            <div class="detail-grid">
+              <article class="detail-panel">
+                <h4>原始凭证</h4>
+                <ul id="voucherList" class="clean-list"></ul>
+              </article>
+              <article class="detail-panel">
+                <h4>借贷逻辑</h4>
+                <p id="logicText">系统会说明为什么借记或贷记相关科目。</p>
+              </article>
+            </div>
+
+            <article class="statement-panel">
+              <h4>财务报表列示</h4>
+              <div id="reportImpact" class="statement-list"></div>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <section id="voucher" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Source Documents</p>
+            <h2>凭证清单</h2>
+            <p>按业务类型查看需要准备、核对和留存的原始凭证。</p>
+          </div>
+        </div>
+        <div id="voucherOverview" class="library-grid"></div>
+      </section>
+
+      <section id="report" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Financial Statements</p>
+            <h2>财务报表列示</h2>
+            <p>从资产负债表、利润表、现金流量表三个维度理解业务结果。</p>
+          </div>
+        </div>
+        <div id="reportOverview" class="library-grid"></div>
+      </section>
+
+      <section id="accounts" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Chart Of Accounts</p>
+            <h2>科目速查</h2>
+            <p>快速查看常用科目的类别、借贷方向和典型使用场景。</p>
+          </div>
+        </div>
+        <div id="accountGuide" class="account-table"></div>
+      </section>
+
+      <section id="records" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Local Records</p>
+            <h2>处理记录</h2>
+            <p>保存常用业务处理结果，便于复核、整理和导出。</p>
+          </div>
+          <button id="clearRecordsBtn" class="danger-btn" type="button">清空记录</button>
+        </div>
+        <div id="recordsList" class="record-list"></div>
+      </section>
+
+      <section id="case" class="section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Integrated Case</p>
+            <h2>完整案例演示</h2>
+            <p>用一组连续业务展示分录、利润计算、现金流变化和资产负债表平衡思路。</p>
+          </div>
+        </div>
+        <div id="caseDemo" class="case-demo"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <strong>安全与使用说明</strong>
+      <p>本工具用于会计基础学习、业务处理思路辅助和作品展示。当前版本在浏览器本地运行，不会主动上传业务数据；请勿输入真实客户隐私、银行账号、身份证号、完整税号或公司敏感凭证信息。实际业务需结合发票、合同、公司制度、税法规定和专业会计判断。</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
